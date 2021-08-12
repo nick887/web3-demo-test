@@ -10,7 +10,7 @@ interface Props {
 }
 
 let web3: Web3 | undefined = undefined; // Will hold the web3 instance
-
+// eslint-disable-next-line
 export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 	const [loading, setLoading] = useState(false); // Loading button state
 
@@ -21,13 +21,13 @@ export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 		publicAddress: string;
 		signature: string;
 	}) =>
-		fetch(`${process.env.REACT_APP_BACKEND_URL}/auth`, {
+		fetch(`${process.env.REACT_APP_BACKEND_URL}/connect`, {
 			body: JSON.stringify({ publicAddress, signature }),
 			headers: {
 				'Content-Type': 'application/json',
 			},
 			method: 'POST',
-		}).then((response) => response.json());
+		}).then((response) => console.log(response.json()));
 
 	const handleSignMessage = async ({
 		publicAddress,
@@ -37,8 +37,9 @@ export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 		nonce: string;
 	}) => {
 		try {
+			console.log(nonce);
 			const signature = await web3!.eth.personal.sign(
-				`I am signing my one-time nonce: ${nonce}`,
+				`nonce:${nonce}`,
 				publicAddress,
 				'' // MetaMask will ignore the password argument here
 			);
@@ -52,7 +53,7 @@ export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 	};
 
 	const handleSignup = (publicAddress: string) =>
-		fetch(`${process.env.REACT_APP_BACKEND_URL}/users`, {
+		fetch(`${process.env.REACT_APP_BACKEND_URL}/signin`, {
 			body: JSON.stringify({ publicAddress }),
 			headers: {
 				'Content-Type': 'application/json',
@@ -89,22 +90,12 @@ export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 
 		const publicAddress = coinbase.toLowerCase();
 		setLoading(true);
-
-		// Look if user with current publicAddress is already present on backend
-		fetch(
-			`${process.env.REACT_APP_BACKEND_URL}/users?publicAddress=${publicAddress}`
-		)
-			.then((response) => response.json())
-			// If yes, retrieve it. If no, create it.
-			.then((users) =>
-				users.length ? users[0] : handleSignup(publicAddress)
-			)
+		handleSignup(publicAddress)
 			// Popup MetaMask confirmation modal to sign message
 			.then(handleSignMessage)
 			// Send signature to backend on the /auth route
 			.then(handleAuthenticate)
 			// Pass accessToken back to parent component (to save it in localStorage)
-			.then(onLoggedIn)
 			.catch((err) => {
 				window.alert(err);
 				setLoading(false);
