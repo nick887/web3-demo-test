@@ -21,7 +21,7 @@ export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 		publicAddress: string;
 		signature: string;
 	}) =>
-		fetch(`${process.env.REACT_APP_BACKEND_URL}/connect`, {
+		fetch(`${process.env.REACT_APP_BACKEND_URL}/signin`, {
 			body: JSON.stringify({ publicAddress, signature }),
 			headers: {
 				'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export const Login = ({ onLoggedIn }: Props): JSX.Element => {
 	};
 
 	const handleSignup = (publicAddress: string) =>
-		fetch(`${process.env.REACT_APP_BACKEND_URL}/signin`, {
+		fetch(`${process.env.REACT_APP_BACKEND_URL}/nonce`, {
 			body: JSON.stringify({ publicAddress }),
 			headers: {
 				'Content-Type': 'application/json',
